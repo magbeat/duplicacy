@@ -168,7 +168,7 @@ func (manager *BackupManager) Backup(top string, quickMode bool, threads int, ta
 	var err error
 	top, err = filepath.Abs(top)
 	if err != nil {
-		LOG_ERROR("REPOSITORY_ERR", "Failed to obtain the absolute path of the repository: %v", err)
+		LOG_WARN("REPOSITORY_ERR", "Failed to obtain the absolute path of the repository: %v", err)
 		os.Setenv("DUPLICACY_BACKUP_STATUS", "ERROR")
 		os.Setenv("DUPLICACY_BACKUP_ERROR", "REPOSITORY_ERR")
 		return false
@@ -192,7 +192,7 @@ func (manager *BackupManager) Backup(top string, quickMode bool, threads int, ta
 	LOG_INFO("BACKUP_INDEXING", "Indexing %s", top)
 	localSnapshot, skippedDirectories, skippedFiles, err := CreateSnapshotFromDirectory(manager.snapshotID, shadowTop, manager.nobackupFile)
 	if err != nil {
-		LOG_ERROR("SNAPSHOT_LIST", "Failed to list the directory %s: %v", top, err)
+		LOG_WARN("SNAPSHOT_LIST", "Failed to list the directory %s: %v", top, err)
 		os.Setenv("DUPLICACY_BACKUP_STATUS", "ERROR")
 		os.Setenv("DUPLICACY_BACKUP_ERROR", "SNAPSHOT_LIST")
 		return false
@@ -532,7 +532,7 @@ func (manager *BackupManager) Backup(top string, quickMode bool, threads int, ta
 				uploadedChunkLock.Unlock()
 
 				if len(uploadedChunkHashes) == chunkToFail {
-					LOG_ERROR("SNAPSHOT_FAIL", "Artificially fail the chunk %d for testing purposes", chunkToFail)
+					LOG_WARN("SNAPSHOT_FAIL", "Artificially fail the chunk %d for testing purposes", chunkToFail)
 				}
 
 			},
@@ -588,7 +588,7 @@ func (manager *BackupManager) Backup(top string, quickMode bool, threads int, ta
 	err = manager.SnapshotManager.CheckSnapshot(localSnapshot)
 	if err != nil {
 		RunAtError = func() {} // Don't save the incomplete snapshot
-		LOG_ERROR("SNAPSHOT_CHECK", "The snapshot contains an error: %v", err)
+		LOG_WARN("SNAPSHOT_CHECK", "The snapshot contains an error: %v", err)
 		os.Setenv("DUPLICACY_BACKUP_STATUS", "ERROR")
 		os.Setenv("DUPLICACY_BACKUP_ERROR", "SNAPSHOT_CHECK")
 		return false
@@ -601,7 +601,7 @@ func (manager *BackupManager) Backup(top string, quickMode bool, threads int, ta
 	}
 
 	if _, found := os.LookupEnv("DUPLICACY_FAIL_SNAPSHOT"); found {
-		LOG_ERROR("SNAPSHOT_FAIL", "Artificially fail the backup for testing purposes")
+		LOG_WARN("SNAPSHOT_FAIL", "Artificially fail the backup for testing purposes")
 		os.Setenv("DUPLICACY_BACKUP_STATUS", "ERROR")
 		os.Setenv("DUPLICACY_BACKUP_ERROR", "SNAPSHOT_FAIL")
 		return false
